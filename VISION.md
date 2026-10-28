@@ -60,7 +60,7 @@ Statuspage.io and similar products are priced for companies that already spend h
 
 ## Limitations & non-goals
 
-- Vercel Cron minimum interval on Hobby is one minute—sufficient for most status use cases
+- Vercel Cron on the Hobby plan runs once per day, and only within the scheduled hour. Per-minute checks need Vercel Pro (`* * * * *`) or an external scheduler calling `/api/cron/checks`. A daily check is enough to prove a deploy; a customer-facing page should check far more often.
 - Neon free tier sleeps when idle; first admin load after idle may be slow
 - User-facing status only—not internal APM, tracing, or SLO engineering
 - End-user trust builds over time; commercial incumbents have brand advantage

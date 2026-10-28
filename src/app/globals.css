@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f1ea;
+  --foreground: #1c1917;
+  --card: #fffcf7;
+  --line: #e4ddd0;
+  --muted: #57534e;
+  --operational: #1f7a4d;
+  --operational-wash: #e5f4eb;
+  --degraded: #9a6700;
+  --degraded-wash: #fff4d6;
+  --down: #b42318;
+  --down-wash: #fde8e6;
+  --maintenance: #1d4e89;
+  --maintenance-wash: #e6f0fa;
+  --delayed: #44403c;
+  --delayed-wash: #ece7df;
+  --unknown: #57534e;
+  --empty: #d6d3d1;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-operational: var(--operational);
+  --color-degraded: var(--degraded);
+  --color-down: var(--down);
+  --color-maintenance: var(--maintenance);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #141210;
+    --foreground: #f5f1e8;
+    --card: #1e1b18;
+    --line: #3a342c;
+    --muted: #a8a29e;
+    --operational: #7dcea0;
+    --operational-wash: #163024;
+    --degraded: #f5c16c;
+    --degraded-wash: #3a2c12;
+    --down: #f0a8a2;
+    --down-wash: #3f1c18;
+    --maintenance: #9ec1e8;
+    --maintenance-wash: #16283c;
+    --delayed: #d6d3d1;
+    --delayed-wash: #2a2622;
+    --unknown: #a8a29e;
+    --empty: #44403c;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), sans-serif;
 }
+
+.banner[data-tone="operational"] { background: var(--operational-wash); color: var(--operational); }
+.banner[data-tone="degraded"],
+.banner[data-tone="partial"] { background: var(--degraded-wash); color: var(--degraded); }
+.banner[data-tone="major"] { background: var(--down-wash); color: var(--down); }
+.banner[data-tone="maintenance"] { background: var(--maintenance-wash); color: var(--maintenance); }
+.banner[data-tone="delayed"],
+.banner[data-tone="unknown"] { background: var(--delayed-wash); color: var(--delayed); }
+
+.day[data-tone="up"] { background: var(--operational); }
+.day[data-tone="degraded"] { background: var(--degraded); }
+.day[data-tone="down"] { background: var(--down); }
+.day[data-tone="empty"] { background: var(--empty); }
+
+.pill[data-status="operational"] { color: var(--operational); }
+.pill[data-status="degraded"] { color: var(--degraded); }
+.pill[data-status="down"] { color: var(--down); }
+.pill[data-status="maintenance"] { color: var(--maintenance); }
+.pill[data-status="unknown"] { color: var(--unknown); }

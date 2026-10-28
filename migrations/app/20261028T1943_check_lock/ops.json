@@ -1,0 +1,51 @@
+[
+  {
+    "id": "table.CheckLock",
+    "label": "Create table \"CheckLock\"",
+    "summary": "Creates table \"CheckLock\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "CheckLock"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"CheckLock\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"CheckLock\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"CheckLock\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"CheckLock\"",
+        "sql": "CREATE TABLE \"public\".\"CheckLock\" (\n  \"id\" text NOT NULL,\n  \"lockedUntil\" timestamptz NOT NULL,\n  \"owner\" text DEFAULT '' NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"CheckLock\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"CheckLock\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"CheckLock\""
+        }
+      }
+    ]
+  }
+]

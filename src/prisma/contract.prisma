@@ -1,0 +1,167 @@
+// use prisma-8
+
+enum ServiceStatus {
+  @@type("pg/text@1")
+  unknown      = "unknown"
+  operational  = "operational"
+  degraded     = "degraded"
+  down         = "down"
+  maintenance  = "maintenance"
+}
+
+enum CheckOutcome {
+  @@type("pg/text@1")
+  up       = "up"
+  degraded = "degraded"
+  down     = "down"
+}
+
+enum HttpMethod {
+  @@type("pg/text@1")
+  get  = "GET"
+  head = "HEAD"
+}
+
+enum IncidentStatus {
+  @@type("pg/text@1")
+  investigating = "investigating"
+  identified    = "identified"
+  monitoring    = "monitoring"
+  resolved      = "resolved"
+}
+
+enum IncidentImpact {
+  @@type("pg/text@1")
+  minor       = "minor"
+  major       = "major"
+  critical    = "critical"
+  maintenance = "maintenance"
+}
+
+enum AlertKind {
+  @@type("pg/text@1")
+  email   = "email"
+  webhook = "webhook"
+}
+
+model Service {
+  id                  Uuid              @id @onCreate(uuid(7))
+  name                String
+  description         String?
+  url                 String
+  method              HttpMethod        @default(get)
+  expectedStatus      Int               @default(200)
+  timeoutMs           Int               @default(8000)
+  degradedAfterMs     Int?
+  enabled             Boolean           @default(true)
+  position            Int               @default(0)
+  groupLabel          String?
+  status              ServiceStatus     @default(unknown)
+  consecutiveFailures Int               @default(0)
+  lastCheckedAt       TimestamptzJsDate?
+  lastResponseMs      Int?
+  createdAt           temporal.CreatedAtJsDate
+  updatedAt           temporal.UpdatedAtJsDate
+  checks              Check[]
+  dailyStats          DailyStat[]
+  incidentLinks       IncidentService[]
+}
+
+model Check {
+  id         Uuid              @id @onCreate(uuid(7))
+  serviceId  Uuid
+  service    Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  outcome    CheckOutcome
+  statusCode Int?
+  responseMs Int?
+  error      String?
+  checkedAt  TimestamptzJsDate @default(now())
+
+  @@index([serviceId, checkedAt])
+}
+
+model DailyStat {
+  id             Uuid       @id @onCreate(uuid(7))
+  serviceId      Uuid
+  service        Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  day            DateString
+  totalChecks    Int        @default(0)
+  upChecks       Int        @default(0)
+  degradedChecks Int        @default(0)
+  downChecks     Int        @default(0)
+  avgResponseMs  Int?
+
+  @@unique([serviceId, day])
+}
+
+model Incident {
+  id         Uuid              @id @onCreate(uuid(7))
+  title      String
+  status     IncidentStatus
+  impact     IncidentImpact
+  startedAt  TimestamptzJsDate @default(now())
+  resolvedAt TimestamptzJsDate?
+  createdAt  temporal.CreatedAtJsDate
+  updates    IncidentUpdate[]
+  links      IncidentService[]
+}
+
+model IncidentUpdate {
+  id         Uuid           @id @onCreate(uuid(7))
+  incidentId Uuid
+  incident   Incident       @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  body       String
+  status     IncidentStatus
+  createdAt  temporal.CreatedAtJsDate
+}
+
+model IncidentService {
+  incidentId Uuid
+  serviceId  Uuid
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  service    Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([incidentId, serviceId])
+}
+
+model AlertDestination {
+  id         Uuid             @id @onCreate(uuid(7))
+  kind       AlertKind
+  target     String
+  enabled    Boolean          @default(true)
+  createdAt  temporal.CreatedAtJsDate
+  deliveries AlertDelivery[]
+}
+
+model AlertDelivery {
+  id            Uuid              @id @onCreate(uuid(7))
+  destinationId Uuid
+  destination   AlertDestination  @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  event         String
+  serviceName   String
+  ok            Boolean
+  error         String?
+  createdAt     TimestamptzJsDate @default(now())
+}
+
+model Setting {
+  id                   String @id
+  siteName             String @default("Status")
+  siteUrl              String @default("")
+  checkIntervalSeconds Int    @default(86400)
+  failuresBeforeAlert  Int    @default(2)
+}
+
+model CheckLock {
+  id          String            @id
+  lockedUntil TimestamptzJsDate
+  owner       String            @default("")
+}
+
+model LoginAttempt {
+  id          Uuid              @id @onCreate(uuid(7))
+  ip          String
+  attemptedAt TimestamptzJsDate @default(now())
+
+  @@index([ip, attemptedAt])
+}

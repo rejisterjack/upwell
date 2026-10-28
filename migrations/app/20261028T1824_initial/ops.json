@@ -1,0 +1,1253 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.AlertDelivery",
+    "label": "Create table \"AlertDelivery\"",
+    "summary": "Creates table \"AlertDelivery\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "AlertDelivery"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"AlertDelivery\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AlertDelivery\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"AlertDelivery\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"AlertDelivery\"",
+        "sql": "CREATE TABLE \"public\".\"AlertDelivery\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"destinationId\" uuid NOT NULL,\n  \"error\" text,\n  \"event\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"ok\" bool NOT NULL,\n  \"serviceName\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"AlertDelivery\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"AlertDelivery\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"AlertDelivery\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.AlertDestination",
+    "label": "Create table \"AlertDestination\"",
+    "summary": "Creates table \"AlertDestination\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "AlertDestination"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"AlertDestination\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AlertDestination\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"AlertDestination\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"AlertDestination\"",
+        "sql": "CREATE TABLE \"public\".\"AlertDestination\" (\n  \"createdAt\" timestamptz NOT NULL,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"kind\" text NOT NULL,\n  \"target\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"AlertDestination_kind_check_c88e5e3e\" CHECK (\"kind\" IN ('email', 'webhook'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"AlertDestination\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"AlertDestination\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"AlertDestination\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Check",
+    "label": "Create table \"Check\"",
+    "summary": "Creates table \"Check\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Check"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Check\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Check\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Check\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Check\"",
+        "sql": "CREATE TABLE \"public\".\"Check\" (\n  \"checkedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"error\" text,\n  \"id\" uuid NOT NULL,\n  \"outcome\" text NOT NULL,\n  \"responseMs\" int4,\n  \"serviceId\" uuid NOT NULL,\n  \"statusCode\" int4,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Check_outcome_check_02ac593f\" CHECK (\"outcome\" IN ('up', 'degraded', 'down'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Check\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Check\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Check\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.DailyStat",
+    "label": "Create table \"DailyStat\"",
+    "summary": "Creates table \"DailyStat\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "DailyStat"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"DailyStat\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DailyStat\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"DailyStat\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"DailyStat\"",
+        "sql": "CREATE TABLE \"public\".\"DailyStat\" (\n  \"avgResponseMs\" int4,\n  \"day\" date NOT NULL,\n  \"degradedChecks\" int4 DEFAULT 0 NOT NULL,\n  \"downChecks\" int4 DEFAULT 0 NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"serviceId\" uuid NOT NULL,\n  \"totalChecks\" int4 DEFAULT 0 NOT NULL,\n  \"upChecks\" int4 DEFAULT 0 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"DailyStat\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"DailyStat\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"DailyStat\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Incident",
+    "label": "Create table \"Incident\"",
+    "summary": "Creates table \"Incident\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Incident"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Incident\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Incident\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Incident\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Incident\"",
+        "sql": "CREATE TABLE \"public\".\"Incident\" (\n  \"createdAt\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"impact\" text NOT NULL,\n  \"resolvedAt\" timestamptz,\n  \"startedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"status\" text NOT NULL,\n  \"title\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Incident_impact_check_ea9f77fa\" CHECK (\"impact\" IN ('minor', 'major', 'critical', 'maintenance')),\n  CONSTRAINT \"Incident_status_check_06a46d23\" CHECK (\"status\" IN ('investigating', 'identified', 'monitoring', 'resolved'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Incident\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Incident\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Incident\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.IncidentService",
+    "label": "Create table \"IncidentService\"",
+    "summary": "Creates table \"IncidentService\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "IncidentService"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"IncidentService\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentService\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"IncidentService\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"IncidentService\"",
+        "sql": "CREATE TABLE \"public\".\"IncidentService\" (\n  \"incidentId\" uuid NOT NULL,\n  \"serviceId\" uuid NOT NULL,\n  PRIMARY KEY (\"incidentId\", \"serviceId\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"IncidentService\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentService\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"IncidentService\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.IncidentUpdate",
+    "label": "Create table \"IncidentUpdate\"",
+    "summary": "Creates table \"IncidentUpdate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "IncidentUpdate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"IncidentUpdate\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentUpdate\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"IncidentUpdate\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"IncidentUpdate\"",
+        "sql": "CREATE TABLE \"public\".\"IncidentUpdate\" (\n  \"body\" text NOT NULL,\n  \"createdAt\" timestamptz NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"incidentId\" uuid NOT NULL,\n  \"status\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"IncidentUpdate_status_check_06a46d23\" CHECK (\"status\" IN ('investigating', 'identified', 'monitoring', 'resolved'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"IncidentUpdate\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentUpdate\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"IncidentUpdate\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.LoginAttempt",
+    "label": "Create table \"LoginAttempt\"",
+    "summary": "Creates table \"LoginAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "LoginAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"LoginAttempt\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LoginAttempt\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"LoginAttempt\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"LoginAttempt\"",
+        "sql": "CREATE TABLE \"public\".\"LoginAttempt\" (\n  \"attemptedAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"ip\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"LoginAttempt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"LoginAttempt\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"LoginAttempt\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Service",
+    "label": "Create table \"Service\"",
+    "summary": "Creates table \"Service\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Service"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Service\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Service\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Service\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Service\"",
+        "sql": "CREATE TABLE \"public\".\"Service\" (\n  \"consecutiveFailures\" int4 DEFAULT 0 NOT NULL,\n  \"createdAt\" timestamptz NOT NULL,\n  \"degradedAfterMs\" int4,\n  \"description\" text,\n  \"enabled\" bool DEFAULT true NOT NULL,\n  \"expectedStatus\" int4 DEFAULT 200 NOT NULL,\n  \"groupLabel\" text,\n  \"id\" uuid NOT NULL,\n  \"lastCheckedAt\" timestamptz,\n  \"lastResponseMs\" int4,\n  \"method\" text DEFAULT 'GET' NOT NULL,\n  \"name\" text NOT NULL,\n  \"position\" int4 DEFAULT 0 NOT NULL,\n  \"status\" text DEFAULT 'unknown' NOT NULL,\n  \"timeoutMs\" int4 DEFAULT 8000 NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  \"url\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"Service_method_check_a2e56478\" CHECK (\"method\" IN ('GET', 'HEAD')),\n  CONSTRAINT \"Service_status_check_26e92039\" CHECK (\"status\" IN ('unknown', 'operational', 'degraded', 'down', 'maintenance'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Service\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Service\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Service\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Setting",
+    "label": "Create table \"Setting\"",
+    "summary": "Creates table \"Setting\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Setting"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Setting\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Setting\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Setting\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Setting\"",
+        "sql": "CREATE TABLE \"public\".\"Setting\" (\n  \"checkIntervalSeconds\" int4 DEFAULT 86400 NOT NULL,\n  \"failuresBeforeAlert\" int4 DEFAULT 2 NOT NULL,\n  \"id\" text NOT NULL,\n  \"siteName\" text DEFAULT 'Status' NOT NULL,\n  \"siteUrl\" text DEFAULT '' NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Setting\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Setting\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Setting\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.DailyStat.DailyStat_serviceId_day_key",
+    "label": "Add unique constraint on \"DailyStat\" (serviceId, day)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "DailyStat_serviceId_day_key",
+        "table": "DailyStat"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"DailyStat_serviceId_day_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DailyStat_serviceId_day_key",
+          "public",
+          "\"public\".\"DailyStat\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"DailyStat_serviceId_day_key\" on \"DailyStat\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"DailyStat_serviceId_day_key\"",
+        "sql": "ALTER TABLE \"public\".\"DailyStat\" ADD CONSTRAINT \"DailyStat_serviceId_day_key\" UNIQUE (\"serviceId\", \"day\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"DailyStat_serviceId_day_key\" exists on (serviceId, day)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "DailyStat_serviceId_day_key",
+          "public",
+          "\"public\".\"DailyStat\"",
+          "u",
+          "[\"serviceId\",\"day\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.AlertDelivery.AlertDelivery_destinationId_idx_1646ee5c",
+    "label": "Create index \"AlertDelivery_destinationId_idx_1646ee5c\" on \"AlertDelivery\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "AlertDelivery_destinationId_idx_1646ee5c",
+        "table": "AlertDelivery"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"AlertDelivery_destinationId_idx_1646ee5c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"AlertDelivery_destinationId_idx_1646ee5c\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"AlertDelivery_destinationId_idx_1646ee5c\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"AlertDelivery_destinationId_idx_1646ee5c\"",
+        "sql": "CREATE INDEX \"AlertDelivery_destinationId_idx_1646ee5c\" ON \"public\".\"AlertDelivery\" (\"destinationId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"AlertDelivery_destinationId_idx_1646ee5c\" exists on \"AlertDelivery\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"AlertDelivery_destinationId_idx_1646ee5c\"",
+          "i",
+          "I",
+          "\"public\".\"AlertDelivery\"",
+          "btree",
+          "[\"destinationId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Check.Check_serviceId_checkedAt_idx_028345cd",
+    "label": "Create index \"Check_serviceId_checkedAt_idx_028345cd\" on \"Check\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Check_serviceId_checkedAt_idx_028345cd",
+        "table": "Check"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Check_serviceId_checkedAt_idx_028345cd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Check_serviceId_checkedAt_idx_028345cd\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Check_serviceId_checkedAt_idx_028345cd\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Check_serviceId_checkedAt_idx_028345cd\"",
+        "sql": "CREATE INDEX \"Check_serviceId_checkedAt_idx_028345cd\" ON \"public\".\"Check\" (\"serviceId\", \"checkedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Check_serviceId_checkedAt_idx_028345cd\" exists on \"Check\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Check_serviceId_checkedAt_idx_028345cd\"",
+          "i",
+          "I",
+          "\"public\".\"Check\"",
+          "btree",
+          "[\"serviceId\",\"checkedAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Check.Check_serviceId_idx_b5d9acbf",
+    "label": "Create index \"Check_serviceId_idx_b5d9acbf\" on \"Check\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Check_serviceId_idx_b5d9acbf",
+        "table": "Check"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Check_serviceId_idx_b5d9acbf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Check_serviceId_idx_b5d9acbf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Check_serviceId_idx_b5d9acbf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Check_serviceId_idx_b5d9acbf\"",
+        "sql": "CREATE INDEX \"Check_serviceId_idx_b5d9acbf\" ON \"public\".\"Check\" (\"serviceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Check_serviceId_idx_b5d9acbf\" exists on \"Check\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Check_serviceId_idx_b5d9acbf\"",
+          "i",
+          "I",
+          "\"public\".\"Check\"",
+          "btree",
+          "[\"serviceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.DailyStat.DailyStat_serviceId_idx_b5d9acbf",
+    "label": "Create index \"DailyStat_serviceId_idx_b5d9acbf\" on \"DailyStat\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "DailyStat_serviceId_idx_b5d9acbf",
+        "table": "DailyStat"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"DailyStat_serviceId_idx_b5d9acbf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"DailyStat_serviceId_idx_b5d9acbf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"DailyStat_serviceId_idx_b5d9acbf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"DailyStat_serviceId_idx_b5d9acbf\"",
+        "sql": "CREATE INDEX \"DailyStat_serviceId_idx_b5d9acbf\" ON \"public\".\"DailyStat\" (\"serviceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"DailyStat_serviceId_idx_b5d9acbf\" exists on \"DailyStat\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"DailyStat_serviceId_idx_b5d9acbf\"",
+          "i",
+          "I",
+          "\"public\".\"DailyStat\"",
+          "btree",
+          "[\"serviceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.IncidentService.IncidentService_incidentId_idx_20b6f3c9",
+    "label": "Create index \"IncidentService_incidentId_idx_20b6f3c9\" on \"IncidentService\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "IncidentService_incidentId_idx_20b6f3c9",
+        "table": "IncidentService"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"IncidentService_incidentId_idx_20b6f3c9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentService_incidentId_idx_20b6f3c9\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"IncidentService_incidentId_idx_20b6f3c9\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"IncidentService_incidentId_idx_20b6f3c9\"",
+        "sql": "CREATE INDEX \"IncidentService_incidentId_idx_20b6f3c9\" ON \"public\".\"IncidentService\" (\"incidentId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"IncidentService_incidentId_idx_20b6f3c9\" exists on \"IncidentService\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentService_incidentId_idx_20b6f3c9\"",
+          "i",
+          "I",
+          "\"public\".\"IncidentService\"",
+          "btree",
+          "[\"incidentId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.IncidentService.IncidentService_serviceId_idx_b5d9acbf",
+    "label": "Create index \"IncidentService_serviceId_idx_b5d9acbf\" on \"IncidentService\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "IncidentService_serviceId_idx_b5d9acbf",
+        "table": "IncidentService"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"IncidentService_serviceId_idx_b5d9acbf\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentService_serviceId_idx_b5d9acbf\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"IncidentService_serviceId_idx_b5d9acbf\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"IncidentService_serviceId_idx_b5d9acbf\"",
+        "sql": "CREATE INDEX \"IncidentService_serviceId_idx_b5d9acbf\" ON \"public\".\"IncidentService\" (\"serviceId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"IncidentService_serviceId_idx_b5d9acbf\" exists on \"IncidentService\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentService_serviceId_idx_b5d9acbf\"",
+          "i",
+          "I",
+          "\"public\".\"IncidentService\"",
+          "btree",
+          "[\"serviceId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.IncidentUpdate.IncidentUpdate_incidentId_idx_20b6f3c9",
+    "label": "Create index \"IncidentUpdate_incidentId_idx_20b6f3c9\" on \"IncidentUpdate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "IncidentUpdate_incidentId_idx_20b6f3c9",
+        "table": "IncidentUpdate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"IncidentUpdate_incidentId_idx_20b6f3c9\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentUpdate_incidentId_idx_20b6f3c9\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"IncidentUpdate_incidentId_idx_20b6f3c9\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"IncidentUpdate_incidentId_idx_20b6f3c9\"",
+        "sql": "CREATE INDEX \"IncidentUpdate_incidentId_idx_20b6f3c9\" ON \"public\".\"IncidentUpdate\" (\"incidentId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"IncidentUpdate_incidentId_idx_20b6f3c9\" exists on \"IncidentUpdate\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"IncidentUpdate_incidentId_idx_20b6f3c9\"",
+          "i",
+          "I",
+          "\"public\".\"IncidentUpdate\"",
+          "btree",
+          "[\"incidentId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.LoginAttempt.LoginAttempt_ip_attemptedAt_idx_80ca34db",
+    "label": "Create index \"LoginAttempt_ip_attemptedAt_idx_80ca34db\" on \"LoginAttempt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "LoginAttempt_ip_attemptedAt_idx_80ca34db",
+        "table": "LoginAttempt"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"LoginAttempt_ip_attemptedAt_idx_80ca34db\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"LoginAttempt_ip_attemptedAt_idx_80ca34db\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"LoginAttempt_ip_attemptedAt_idx_80ca34db\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"LoginAttempt_ip_attemptedAt_idx_80ca34db\"",
+        "sql": "CREATE INDEX \"LoginAttempt_ip_attemptedAt_idx_80ca34db\" ON \"public\".\"LoginAttempt\" (\"ip\", \"attemptedAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"LoginAttempt_ip_attemptedAt_idx_80ca34db\" exists on \"LoginAttempt\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"LoginAttempt_ip_attemptedAt_idx_80ca34db\"",
+          "i",
+          "I",
+          "\"public\".\"LoginAttempt\"",
+          "btree",
+          "[\"ip\",\"attemptedAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.AlertDelivery.AlertDelivery_destinationId_fkey",
+    "label": "Add foreign key \"AlertDelivery_destinationId_fkey\" on \"AlertDelivery\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "AlertDelivery_destinationId_fkey",
+        "table": "AlertDelivery"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"AlertDelivery_destinationId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "AlertDelivery_destinationId_fkey",
+          "public",
+          "\"public\".\"AlertDelivery\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"AlertDelivery_destinationId_fkey\" on \"AlertDelivery\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"AlertDelivery_destinationId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"AlertDelivery\"\nADD CONSTRAINT \"AlertDelivery_destinationId_fkey\"\nFOREIGN KEY (\"destinationId\")\nREFERENCES \"public\".\"AlertDestination\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"AlertDelivery_destinationId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "AlertDelivery_destinationId_fkey",
+          "public",
+          "\"public\".\"AlertDelivery\"",
+          "f",
+          "[\"destinationId\"]",
+          "\"public\".\"AlertDestination\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Check.Check_serviceId_fkey",
+    "label": "Add foreign key \"Check_serviceId_fkey\" on \"Check\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Check_serviceId_fkey",
+        "table": "Check"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Check_serviceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Check_serviceId_fkey",
+          "public",
+          "\"public\".\"Check\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Check_serviceId_fkey\" on \"Check\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Check_serviceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Check\"\nADD CONSTRAINT \"Check_serviceId_fkey\"\nFOREIGN KEY (\"serviceId\")\nREFERENCES \"public\".\"Service\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Check_serviceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Check_serviceId_fkey",
+          "public",
+          "\"public\".\"Check\"",
+          "f",
+          "[\"serviceId\"]",
+          "\"public\".\"Service\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.DailyStat.DailyStat_serviceId_fkey",
+    "label": "Add foreign key \"DailyStat_serviceId_fkey\" on \"DailyStat\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "DailyStat_serviceId_fkey",
+        "table": "DailyStat"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"DailyStat_serviceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "DailyStat_serviceId_fkey",
+          "public",
+          "\"public\".\"DailyStat\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"DailyStat_serviceId_fkey\" on \"DailyStat\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"DailyStat_serviceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"DailyStat\"\nADD CONSTRAINT \"DailyStat_serviceId_fkey\"\nFOREIGN KEY (\"serviceId\")\nREFERENCES \"public\".\"Service\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"DailyStat_serviceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "DailyStat_serviceId_fkey",
+          "public",
+          "\"public\".\"DailyStat\"",
+          "f",
+          "[\"serviceId\"]",
+          "\"public\".\"Service\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.IncidentService.IncidentService_incidentId_fkey",
+    "label": "Add foreign key \"IncidentService_incidentId_fkey\" on \"IncidentService\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "IncidentService_incidentId_fkey",
+        "table": "IncidentService"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"IncidentService_incidentId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "IncidentService_incidentId_fkey",
+          "public",
+          "\"public\".\"IncidentService\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"IncidentService_incidentId_fkey\" on \"IncidentService\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"IncidentService_incidentId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"IncidentService\"\nADD CONSTRAINT \"IncidentService_incidentId_fkey\"\nFOREIGN KEY (\"incidentId\")\nREFERENCES \"public\".\"Incident\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"IncidentService_incidentId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "IncidentService_incidentId_fkey",
+          "public",
+          "\"public\".\"IncidentService\"",
+          "f",
+          "[\"incidentId\"]",
+          "\"public\".\"Incident\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.IncidentService.IncidentService_serviceId_fkey",
+    "label": "Add foreign key \"IncidentService_serviceId_fkey\" on \"IncidentService\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "IncidentService_serviceId_fkey",
+        "table": "IncidentService"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"IncidentService_serviceId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "IncidentService_serviceId_fkey",
+          "public",
+          "\"public\".\"IncidentService\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"IncidentService_serviceId_fkey\" on \"IncidentService\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"IncidentService_serviceId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"IncidentService\"\nADD CONSTRAINT \"IncidentService_serviceId_fkey\"\nFOREIGN KEY (\"serviceId\")\nREFERENCES \"public\".\"Service\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"IncidentService_serviceId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "IncidentService_serviceId_fkey",
+          "public",
+          "\"public\".\"IncidentService\"",
+          "f",
+          "[\"serviceId\"]",
+          "\"public\".\"Service\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.IncidentUpdate.IncidentUpdate_incidentId_fkey",
+    "label": "Add foreign key \"IncidentUpdate_incidentId_fkey\" on \"IncidentUpdate\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "IncidentUpdate_incidentId_fkey",
+        "table": "IncidentUpdate"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"IncidentUpdate_incidentId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "IncidentUpdate_incidentId_fkey",
+          "public",
+          "\"public\".\"IncidentUpdate\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"IncidentUpdate_incidentId_fkey\" on \"IncidentUpdate\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"IncidentUpdate_incidentId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"IncidentUpdate\"\nADD CONSTRAINT \"IncidentUpdate_incidentId_fkey\"\nFOREIGN KEY (\"incidentId\")\nREFERENCES \"public\".\"Incident\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"IncidentUpdate_incidentId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "IncidentUpdate_incidentId_fkey",
+          "public",
+          "\"public\".\"IncidentUpdate\"",
+          "f",
+          "[\"incidentId\"]",
+          "\"public\".\"Incident\"",
+          "[\"id\"]",
+          "c",
+          "a"
+        ]
+      }
+    ]
+  }
+]
