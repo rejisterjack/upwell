@@ -127,6 +127,48 @@ async function recordDelivery(
   });
 }
 
+const RECENT_DELIVERY_LIMIT = 50;
+
+export type DeliveryInput = {
+  id: string;
+  destinationId: string;
+  event: string;
+  serviceName: string;
+  ok: boolean;
+  error: string | null;
+  createdAt: Date;
+};
+
+export type DestinationRef = {
+  id: string;
+  kind: string;
+  target: string;
+};
+
+export type RecentDelivery = DeliveryInput & {
+  target: string;
+  kind: string;
+};
+
+export function recentDeliveries(
+  deliveries: DeliveryInput[],
+  destinations: DestinationRef[],
+): RecentDelivery[] {
+  const byId = new Map(destinations.map((destination) => [destination.id, destination]));
+  return deliveries
+    .slice()
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, RECENT_DELIVERY_LIMIT)
+    .map((delivery) => {
+      const destination = byId.get(delivery.destinationId);
+      return {
+        ...delivery,
+        target: destination?.target ?? "Removed destination",
+        kind: destination?.kind ?? "",
+      };
+    });
+}
+
 export function alertsConfigured(input: {
   destinations: { kind: string; enabled: boolean }[];
 }): string | null {

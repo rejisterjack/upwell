@@ -5,6 +5,8 @@ import {
   saveSettingsAction,
   toggleDestinationAction,
 } from "@/app/admin/actions";
+import { recentDeliveries } from "@/lib/alerts";
+import { formatWhen } from "@/lib/format";
 import { live } from "@/lib/live";
 import { getSettings } from "@/lib/settings";
 import { db } from "@/prisma/db";
@@ -33,6 +35,7 @@ async function AlertsContent({
   const { error } = await searchParams;
   const settings = await getSettings();
   const destinations = await db.orm.public.AlertDestination.all();
+  const deliveries = recentDeliveries(await db.orm.public.AlertDelivery.all(), destinations);
 
   return (
     <>
@@ -103,6 +106,27 @@ async function AlertsContent({
           </li>
         ))}
       </ul>
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-medium">Recent deliveries</h2>
+        {deliveries.length === 0 ? (
+          <p className="text-muted">No alerts have been sent.</p>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {deliveries.map((delivery) => (
+              <li key={delivery.id} className="rounded-2xl border border-line bg-card px-5 py-4">
+                <p className="font-medium">{delivery.serviceName}</p>
+                <p className="text-sm text-muted">
+                  {formatWhen(delivery.createdAt.toISOString())} · {delivery.event} · {delivery.target}
+                  {delivery.kind ? ` · ${delivery.kind}` : ""} · {delivery.ok ? "Sent" : "Failed"}
+                </p>
+                {delivery.ok || !delivery.error ? null : (
+                  <p className="mt-1 text-sm text-down">{delivery.error}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </>
   );
 }
