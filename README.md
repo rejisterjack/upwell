@@ -41,7 +41,15 @@ This takes a few minutes the first time.
 6. Give preview deployments their own `DATABASE_URL`. Neon’s Vercel integration can create a branch per preview. Do not point previews at the production database.
 7. Deploy, open `/admin/login`, add a service, and press **Check now**.
 
-The committed cron runs once a day at 12:00 UTC (`0 12 * * *`) so a Hobby deploy succeeds. Hobby cron cannot run more than once per day, and Hobby projects are for non-commercial personal use.
+### Hobby vs minute-level checks
+
+| Plan / setup | Cron schedule | Admin **Check interval** | Fit |
+| --- | --- | --- | --- |
+| Vercel Hobby (committed default) | `0 12 * * *` (once daily, 12:00 UTC) | `86400` | Prove a deploy; not a customer-facing freshness target |
+| Vercel Pro | `* * * * *` | `60` | Minute probes on the platform cron |
+| External scheduler (any plan) | Your scheduler's cadence | Match that cadence (`300`, `60`, …) | Hobby or Pro when you need more than daily without Pro cron |
+
+Hobby cron cannot run more than once per day, and Hobby projects are for non-commercial personal use. The committed `vercel.json` stays on the daily schedule so a Hobby deploy succeeds. A daily check is enough to verify wiring; a page customers trust should probe far more often.
 
 ### Checks every minute (recommended for a customer-facing page)
 
@@ -53,17 +61,38 @@ On Vercel Pro, change the schedule in `vercel.json` to:
 
 Then set **Check interval (seconds)** in the admin to `60`. The public page uses that interval to decide when results are stale. If the newest check is older than about three intervals, the page says status is delayed instead of leaving a green banner up.
 
-### Checks without Pro
+### External scheduler (Hobby or any host)
 
-Point any HTTPS scheduler at the production URL:
+Point any HTTPS scheduler at the production URL. Example with curl:
 
 ```bash
 curl -H "Authorization: Bearer $CRON_SECRET" https://your-status-host/api/cron/checks
 ```
 
-A sample workflow is in [`.github/examples/scheduled-checks.yml`](.github/examples/scheduled-checks.yml). Copy it into `.github/workflows/` and set the `STATUS_URL` and `CRON_SECRET` secrets. GitHub's schedule is about every five minutes and can slip. Set the admin interval to match the scheduler you actually use (`300` for five minutes, `86400` for the default daily cron).
+GitHub Actions example (about every five minutes; schedules can slip):
+
+```yaml
+# .github/workflows/upwell-checks.yml
+name: upwell-checks
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Upwell checks
+        run: |
+          curl -fsS -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.STATUS_URL }}/api/cron/checks"
+```
+
+A fuller sample is in [`.github/examples/scheduled-checks.yml`](.github/examples/scheduled-checks.yml). Copy it into `.github/workflows/` and set the `STATUS_URL` and `CRON_SECRET` secrets. Set the admin interval to match the scheduler you actually use (`300` for five minutes, `86400` for the default daily cron).
 
 Cron runs on the production deployment only. Locally, call the same URL against `http://localhost:3000`.
+
+Admin login is a single shared `ADMIN_PASSWORD`. Multi-admin accounts are out of scope; share that secret with operators who need the panel.
 
 ## Custom domain
 
