@@ -110,8 +110,14 @@ async function requestPinned(
   const host = url.hostname.replace(/^\[|\]$/g, "").toLowerCase();
   if (isIP(host)) return fetch(target, init);
 
+  // Custom undici connect.lookup fails on Vercel serverless ("fetch failed").
+  // Per-hop assertPublicUrl in fetchChecked still blocks private redirects.
+  if (process.env.VERCEL) {
+    return fetch(target, init);
+  }
+
   const addresses = await (options.resolve ?? (await import("./urls")).defaultLookup)(host);
-  // Prefer IPv4: Vercel serverless egress often fails on the first AAAA result.
+  // Prefer IPv4 when pinning DNS locally.
   const address = addresses.find((entry) => !entry.includes(":")) ?? addresses[0];
   const agent = new Agent({
     connect: {
