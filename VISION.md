@@ -64,6 +64,11 @@ Statuspage.io and similar products are priced for companies that already spend h
 - Neon free tier sleeps when idle; first admin load after idle may be slow
 - User-facing status only—not internal APM, tracing, or SLO engineering
 - End-user trust builds over time; commercial incumbents have brand advantage
+- Probes never auto-open incidents; operators write incidents so the public page says what they intend
+
+**Won't-build (closed):**
+- Auto-opening incidents from failed probes stays out of scope. Manual incident create/update/resolve is the product path.
+- Multi-admin / per-user accounts stay out of scope. One shared `ADMIN_PASSWORD` is the forever login model; do not expect `ADMIN_PASSWORD_2` or invite flows.
 
 ## Deployment
 

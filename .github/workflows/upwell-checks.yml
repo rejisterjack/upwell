@@ -1,0 +1,21 @@
+name: Scheduled checks
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe services
+        env:
+          STATUS_URL: ${{ secrets.STATUS_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          test -n "$STATUS_URL"
+          test -n "$CRON_SECRET"
+          curl --fail-with-body --silent --show-error \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "$STATUS_URL/api/cron/checks"
