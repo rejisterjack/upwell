@@ -111,11 +111,12 @@ async function requestPinned(
   if (isIP(host)) return fetch(target, init);
 
   const addresses = await (options.resolve ?? (await import("./urls")).defaultLookup)(host);
+  // Prefer IPv4: Vercel serverless egress often fails on the first AAAA result.
+  const address = addresses.find((entry) => !entry.includes(":")) ?? addresses[0];
   const agent = new Agent({
     connect: {
       lookup(hostname, _lookupOptions, callback) {
         const asked = hostname.replace(/^\[|\]$/g, "").toLowerCase();
-        const address = addresses[0];
         if (asked !== host || !address) {
           callback(new Error("Refusing an unexpected host"), "", 4);
           return;
