@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AdminShell } from "@/components/admin-shell";
+
+export const metadata: Metadata = {
+  title: "Admin · Upwell",
+};
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (

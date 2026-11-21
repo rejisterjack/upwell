@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { loginAction } from "@/app/admin/actions";
 import { adminConfigError } from "@/lib/auth";
+
+export const metadata: Metadata = {
+  title: "Log in · Upwell",
+};
 
 export default function LoginPage({
   searchParams,
