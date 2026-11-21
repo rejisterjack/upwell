@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { checkNowAction } from "@/app/admin/actions";
+import { latestChecks } from "@/lib/checks";
 import { isDelayed } from "@/lib/summary";
 import { serviceStatusLabel } from "@/lib/summary";
 import { formatMs, formatWhen } from "@/lib/format";
@@ -18,6 +19,7 @@ export default function AdminHomePage() {
 async function Checks() {
   await live();
   const settings = await getSettings();
+  const latest = new Map((await latestChecks()).map((check) => [check.serviceId, check]));
   const services = (await db.orm.public.Service.all()).sort(
     (a, b) => a.position - b.position || a.name.localeCompare(b.name),
   );
@@ -50,14 +52,20 @@ async function Checks() {
         <p className="text-muted">No services yet. Add one to start probing.</p>
       ) : (
         <ul className="flex flex-col gap-3">
-          {services.map((service) => (
+          {services.map((service) => {
+            const check = latest.get(service.id);
+            return (
             <li key={service.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-card px-5 py-4">
-              <div>
+              <div className="min-w-0">
                 <p className="font-medium">{service.name}</p>
                 <p className="font-mono text-xs text-muted">
                   {serviceStatusLabel(service.status)} · {formatMs(service.lastResponseMs)} ·{" "}
                   {formatWhen(service.lastCheckedAt?.toISOString() ?? null)}
+                  {check?.statusCode != null ? ` · HTTP ${check.statusCode}` : ""}
                 </p>
+                {check?.error ? (
+                  <p className="mt-1 text-sm break-words text-down">{check.error}</p>
+                ) : null}
               </div>
               <form action={checkNowAction}>
                 <input type="hidden" name="serviceId" value={service.id} />
@@ -66,7 +74,8 @@ async function Checks() {
                 </button>
               </form>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </>

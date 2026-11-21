@@ -38,6 +38,23 @@ export async function acquireCheckLock(): Promise<string | null> {
   return result.rowCount === 1 ? owner : null;
 }
 
+export type LatestCheck = {
+  serviceId: string;
+  outcome: string;
+  statusCode: number | null;
+  error: string | null;
+};
+
+export async function latestChecks(): Promise<LatestCheck[]> {
+  const result = await pool.query<LatestCheck>(
+    `SELECT DISTINCT ON ("serviceId")
+       "serviceId", outcome, "statusCode", error
+     FROM "Check"
+     ORDER BY "serviceId", "checkedAt" DESC`,
+  );
+  return result.rows;
+}
+
 export async function releaseCheckLock(owner: string) {
   await pool.query(
     `UPDATE "CheckLock" SET "lockedUntil" = 'epoch', "owner" = '' WHERE "id" = $1 AND "owner" = $2`,
