@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { probeService } from "./probe";
+import { pinnedAddressLookup, probeService } from "./probe";
 
 describe("probeService", () => {
   it("does not follow a redirect onto a private address", async () => {
@@ -24,5 +24,14 @@ describe("probeService", () => {
     expect(calls).toBe(1);
     expect(result.outcome).toBe("down");
     expect(result.error).toMatch(/private/i);
+  });
+
+  it("answers an all:true DNS lookup with one pinned address", () => {
+    const lookup = pinnedAddressLookup("example.org", "104.20.26.136");
+    const seen: { address: string; family: number }[][] = [];
+    lookup("example.org", { all: true }, (_error, address) => {
+      seen.push(address as { address: string; family: number }[]);
+    });
+    expect(seen).toEqual([[{ address: "104.20.26.136", family: 4 }]]);
   });
 });
