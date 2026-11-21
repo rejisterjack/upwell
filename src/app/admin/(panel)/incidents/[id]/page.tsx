@@ -9,13 +9,19 @@ import { db } from "@/prisma/db";
 const fieldClass = "flex flex-col gap-1 text-sm";
 const inputClass = "rounded-md border border-line bg-background px-3 py-2";
 
-export default function IncidentAdminPage({
+export const instant = false;
+
+export default async function IncidentAdminPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string }>;
 }) {
+  await live();
+  const { id } = await params;
+  const incident = await db.orm.public.Incident.where((row) => row.id.eq(id)).first();
+  if (!incident) notFound();
   return (
     <Suspense fallback={<p className="text-muted">Loading incident…</p>}>
       <IncidentContent params={params} searchParams={searchParams} />

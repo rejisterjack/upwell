@@ -54,11 +54,14 @@ export async function probeService(
     return { outcome: "up", statusCode: response.status, responseMs, error: null };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Request failed";
+    const cause =
+      error instanceof Error && error.cause instanceof Error ? error.cause.message : "";
+    const text = cause && cause !== message ? `${message}: ${cause}` : message;
     return {
       outcome: "down",
       statusCode: null,
       responseMs: Math.round(performance.now() - started),
-      error: message.slice(0, 300),
+      error: text.slice(0, 300),
     };
   }
 }
@@ -85,6 +88,29 @@ async function fetchChecked(
     current = new URL(location, current).toString();
   }
   throw new Error("Too many redirects.");
+}
+
+type LookupOptions = { all?: boolean };
+type LookupAddress = { address: string; family: number };
+type LookupCallback = (
+  error: Error | null,
+  address: string | LookupAddress[],
+  family?: number,
+) => void;
+
+export function pinnedAddressLookup(host: string, address: string) {
+  return (hostname: string, options: LookupOptions, callback: LookupCallback) => {
+    const asked = hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    const family = address.includes(":") ? 6 : 4;
+    if (asked !== host || !address) {
+      const error = new Error("Refusing an unexpected host");
+      if (options.all) callback(error, []);
+      else callback(error, "", 4);
+      return;
+    }
+    if (options.all) callback(null, [{ address, family }]);
+    else callback(null, address, family);
+  };
 }
 
 async function requestPinned(
@@ -121,14 +147,7 @@ async function requestPinned(
   const address = addresses.find((entry) => !entry.includes(":")) ?? addresses[0];
   const agent = new Agent({
     connect: {
-      lookup(hostname, _lookupOptions, callback) {
-        const asked = hostname.replace(/^\[|\]$/g, "").toLowerCase();
-        if (asked !== host || !address) {
-          callback(new Error("Refusing an unexpected host"), "", 4);
-          return;
-        }
-        callback(null, address, address.includes(":") ? 6 : 4);
-      },
+      lookup: pinnedAddressLookup(host, address ?? ""),
     },
   });
   try {

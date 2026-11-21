@@ -16,6 +16,11 @@ export async function getSettings() {
   });
 }
 
+export function boundedInt(value: number, min: number, max: number, fallback: number) {
+  if (!Number.isFinite(value)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
+
 export function normalizeSiteUrl(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "";
@@ -44,7 +49,7 @@ export async function updateSettings(input: {
   return db.orm.public.Setting.where((setting) => setting.id.eq(current.id)).update({
     siteName: input.siteName.trim() || "Status",
     siteUrl: normalizeSiteUrl(input.siteUrl),
-    checkIntervalSeconds: Math.max(60, Math.round(input.checkIntervalSeconds)),
-    failuresBeforeAlert: Math.max(1, Math.round(input.failuresBeforeAlert)),
+    checkIntervalSeconds: boundedInt(input.checkIntervalSeconds, 60, 31_622_400, 86_400),
+    failuresBeforeAlert: boundedInt(input.failuresBeforeAlert, 1, 100, 2),
   });
 }
