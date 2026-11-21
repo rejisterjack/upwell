@@ -7,6 +7,8 @@ import { live } from "@/lib/live";
 import { formatWhen } from "@/lib/format";
 import { incidentStatusLabel } from "@/lib/summary";
 
+export const instant = false;
+
 export async function generateMetadata({
   params,
 }: {
@@ -30,17 +32,20 @@ export async function generateMetadata({
   };
 }
 
-export default function IncidentPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function IncidentPage({ params }: { params: Promise<{ id: string }> }) {
+  await live();
+  const { id } = await params;
+  const snapshot = await getPublicSnapshot();
+  if (!snapshot.incidents.some((item) => item.id === id)) notFound();
   return (
     <Suspense fallback={<p className="p-8 text-muted">Loading incident…</p>}>
-      <IncidentContent params={params} />
+      <IncidentContent id={id} />
     </Suspense>
   );
 }
 
-async function IncidentContent({ params }: { params: Promise<{ id: string }> }) {
+async function IncidentContent({ id }: { id: string }) {
   await live();
-  const { id } = await params;
   const snapshot = await getPublicSnapshot();
   const incident = snapshot.incidents.find((item) => item.id === id);
   if (!incident) notFound();
