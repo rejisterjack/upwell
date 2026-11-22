@@ -901,7 +901,7 @@ Thirty-seven features passed live. Email delivery to Resend is blocked because t
 ### DEV-02 Schedulers
 
 - Files: `vercel.json`, `.github/workflows/upwell-checks.yml`, `.github/examples/scheduled-checks.yml`, `README.md`
-- Expected behavior: Vercel cron calls `/api/cron/checks` at 12:00 UTC daily, in region `iad1`. The GitHub workflow calls the same path every five minutes with `STATUS_URL` and `CRON_SECRET`, and fails the step when either secret is empty. The example file is documentation, not a second live workflow. The admin interval is a separate setting and does not change the cron expression.
+- Expected behavior: Vercel cron calls `/api/cron/checks` at 12:00 UTC daily, in region `iad1`. The GitHub workflow calls the same path on a push to `main` with `STATUS_URL` and `CRON_SECRET`, and fails the step when either secret is empty. It does not run on a schedule. The example file is documentation, not a second live workflow. The admin interval is a separate setting and does not change the cron expression.
 - Acceptance checklist:
   - [x] `vercel.json` still says `0 12 * * *`
   - [x] An unauthorized call is 401
@@ -960,7 +960,7 @@ Thirty-seven features passed live. Email delivery to Resend is blocked because t
 - Login limiting trusts the first `X-Forwarded-For` hop (`src/lib/auth.ts:33-34`). A client that can reach the app directly can choose that address.
 - The public status read loads services, incidents, updates, and daily stats in full (`src/lib/status-data.ts`). A large history makes every page heavier.
 - `script-src` allows `unsafe-eval` in production (`next.config.ts:40`).
-- The GitHub scheduled workflow fails closed when `STATUS_URL` or `CRON_SECRET` is unset. If those secrets are missing, the schedule is red every five minutes and no extra probe runs.
+- The GitHub workflow fails closed when `STATUS_URL` or `CRON_SECRET` is unset. It runs only on a push to `main`. If those secrets are missing, that push is red and no extra probe runs.
 - Neon can sleep on the free tier. The first request after idle can be slow, and a check run during that wake can time out.
 - Hobby cron is daily. A page whose admin interval stays at 60 seconds will show Status delayed almost all day. The README already says to match the interval to the scheduler.
 

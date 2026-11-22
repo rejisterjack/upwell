@@ -37,9 +37,8 @@ This takes a few minutes the first time.
    - `SITE_NAME` — the name on the public page. You can change it later in the admin.
    - `RESEND_API_KEY` and `ALERT_EMAIL_FROM` — only if you want email alerts.
    - `WEBHOOK_SECRET` — optional. When set, webhook bodies include `X-Upwell-Signature`, an HMAC-SHA256 hex digest.
-5. Turn **off** Vercel Authentication for the production deployment. A status page has to be public. Keep protection on preview deployments if you want.
-6. Give preview deployments their own `DATABASE_URL`. Neon’s Vercel integration can create a branch per preview. Do not point previews at the production database.
-7. Deploy, open `/admin/login`, add a service, and press **Check now**.
+5. Turn **off** Vercel Authentication for the production deployment. A status page has to be public. There is no preview deployment. Vercel builds only when the git ref is `main`.
+6. Deploy, open `/admin/login`, add a service, and press **Check now**.
 
 ### Hobby vs minute-level checks
 
@@ -69,15 +68,18 @@ Point any HTTPS scheduler at the production URL. Example with curl:
 curl -H "Authorization: Bearer $CRON_SECRET" https://your-status-host/api/cron/checks
 ```
 
-GitHub Actions example (about every five minutes; schedules can slip):
+## CI/CD
+
+Workflows run only on a push to `main`. A pull request, any other branch, a tag push, a schedule, and a manual run do not start CI or CD. The only deploy target is production. Vercel builds only when the git ref is `main`.
+
+The production Vercel cron in `vercel.json` is the repeating probe. It runs on the production deployment only. The GitHub workflow calls the same path when `main` is pushed and `STATUS_URL` and `CRON_SECRET` are set. It does not run on a schedule.
 
 ```yaml
 # .github/workflows/upwell-checks.yml
 name: upwell-checks
 on:
-  schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch:
+  push:
+    branches: [main]
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -88,9 +90,7 @@ jobs:
             "${{ secrets.STATUS_URL }}/api/cron/checks"
 ```
 
-A fuller sample is in [`.github/examples/scheduled-checks.yml`](.github/examples/scheduled-checks.yml). Copy it into `.github/workflows/` and set the `STATUS_URL` and `CRON_SECRET` secrets. Set the admin interval to match the scheduler you actually use (`300` for five minutes, `86400` for the default daily cron).
-
-Cron runs on the production deployment only. Locally, call the same URL against `http://localhost:3000`.
+The same trigger is in [`.github/examples/scheduled-checks.yml`](.github/examples/scheduled-checks.yml). Set the admin interval to match the production cron you actually use (`86400` for the default daily cron). Locally, call the same URL against `http://localhost:3000`.
 
 Admin login is a single shared `ADMIN_PASSWORD`. Multi-admin accounts are out of scope; share that secret with operators who need the panel.
 

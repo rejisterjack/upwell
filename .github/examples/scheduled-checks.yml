@@ -1,9 +1,10 @@
-name: Scheduled checks
+name: Production checks
 
+# This repository runs checks only on a push to main.
+# The repeating probe is the production Vercel cron.
 on:
-  schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   check:
